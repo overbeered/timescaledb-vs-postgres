@@ -7,4 +7,15 @@
 	<ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Demo.Database.Models\Demo.Database.Models.csproj" />
+    <ProjectReference Include="..\Demo.Database.Contexts.Shared\Demo.Database.Contexts.Shared.csproj" />
+  </ItemGroup>
+	
 </Project>

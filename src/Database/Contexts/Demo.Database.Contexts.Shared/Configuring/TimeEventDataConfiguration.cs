@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Demo.Database.Contexts.Shared
 {
-    internal class TimeEventDataConfiguration : IEntityTypeConfiguration<TimeEventData>
+    public class TimeEventDataConfiguration : IEntityTypeConfiguration<TimeEventData>
     {
         public void Configure(EntityTypeBuilder<TimeEventData> builder)
         {

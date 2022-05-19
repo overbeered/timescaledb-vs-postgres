@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo.Database.Contexts.Post
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo.Database.Contexts.TimescaleDB", "Database\Contexts\Demo.Database.Contexts.TimescaleDB\Demo.Database.Contexts.TimescaleDB.csproj", "{ED1E41D3-FC76-497C-A976-AB48E2296098}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo.Database.Contexts.Shared", "Database\Contexts\Demo.Database.Contexts.Shared\Demo.Database.Contexts.Shared.csproj", "{81D275A4-A7E4-4509-9CCF-94F2232BB1B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{ED1E41D3-FC76-497C-A976-AB48E2296098}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED1E41D3-FC76-497C-A976-AB48E2296098}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED1E41D3-FC76-497C-A976-AB48E2296098}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81D275A4-A7E4-4509-9CCF-94F2232BB1B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81D275A4-A7E4-4509-9CCF-94F2232BB1B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81D275A4-A7E4-4509-9CCF-94F2232BB1B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81D275A4-A7E4-4509-9CCF-94F2232BB1B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{BD5A165A-D287-4E0A-B3F0-D1777469DA3E} = {DED7F663-C63C-4492-A576-13DB4858FE17}
 		{535CD5BB-9E53-444D-8A56-687DBA3C5D0F} = {BD5A165A-D287-4E0A-B3F0-D1777469DA3E}
 		{ED1E41D3-FC76-497C-A976-AB48E2296098} = {BD5A165A-D287-4E0A-B3F0-D1777469DA3E}
+		{81D275A4-A7E4-4509-9CCF-94F2232BB1B0} = {BD5A165A-D287-4E0A-B3F0-D1777469DA3E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FCF27B82-E822-453C-B3F8-8CAFBCF3A923}

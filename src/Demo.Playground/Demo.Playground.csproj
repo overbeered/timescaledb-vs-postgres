@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	<ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Database\Contexts\Demo.Database.Contexts.Postgres\Demo.Database.Contexts.Postgres.csproj" />
+    <ProjectReference Include="..\Database\Contexts\Demo.Database.Contexts.TimescaleDB\Demo.Database.Contexts.TimescaleDB.csproj" />
+    <ProjectReference Include="..\Database\Demo.Database.Repositories\Demo.Database.Repositories.csproj" />
+  </ItemGroup>
+
+</Project>

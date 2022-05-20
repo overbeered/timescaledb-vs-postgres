@@ -7,4 +7,10 @@
 	<ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Contexts\Demo.Database.Contexts.Postgres\Demo.Database.Contexts.Postgres.csproj" />
+    <ProjectReference Include="..\Contexts\Demo.Database.Contexts.TimescaleDB\Demo.Database.Contexts.TimescaleDB.csproj" />
+    <ProjectReference Include="..\Demo.Database.Models\Demo.Database.Models.csproj" />
+  </ItemGroup>
+
 </Project>

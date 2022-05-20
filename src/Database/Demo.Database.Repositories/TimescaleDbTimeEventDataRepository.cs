@@ -1,0 +1,108 @@
+﻿using Dapper;
+using Demo.Database.Contexts.TimescaleDB;
+using Demo.Database.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace Demo.Database.Repositories
+{
+    public class TimescaleDbTimeEventDataRepository : RepositoryBase<TimescaleDbContext, TimeEventData>, ITimeEventDataRepository
+    {
+        public TimescaleDbTimeEventDataRepository(TimescaleDbContext context)
+            : base(context)
+        {
+
+        }
+
+        public Task AddTimeEventDataAsync(TimeEventData ted)
+        {
+            return TaskTransactionalInsertTimeEventDataAsync(ted.StudentId, ted.EventId, ted.Timestamp, ted.Payload);
+        }
+
+        private async Task TaskTransactionalInsertTimeEventDataAsync(Guid studentId,
+            Guid eventId,
+            DateTimeOffset timestamp,
+            string payload)
+        {
+            string query = @"INSERT INTO timeeventsdata (studentid, eventid, timestamp, payload) 
+                             VALUES (@studentid, @eventid, @timestamp, @payload::json);";
+
+            var parameters = new DynamicParameters(new Dictionary<string, object?>
+            {
+                { "@studentid",     studentId   },
+                { "@eventid",       eventId     },
+                { "@timestamp",     timestamp   },
+                { "@payload",       payload     },
+            });
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            bool rollbackIsNeeded = true;
+
+            try
+            {
+                await _context.Connection.ExecuteAsync(query, parameters);
+
+                await transaction.CommitAsync();
+                rollbackIsNeeded = false;
+            }
+            finally
+            {
+                if (rollbackIsNeeded)
+                {
+                    await transaction.RollbackAsync();
+                }
+            }
+        }
+
+        public Task AddTimeEventsDataAsync(List<TimeEventData> teds)
+        {
+            return TransactionalBulkInsertTimeEventsDataAsync(teds);
+        }
+
+        private async Task TransactionalBulkInsertTimeEventsDataAsync(List<TimeEventData> teds)
+        {
+            IEnumerable<string> @params = teds.Select((x, i) => $"(@studentid{i}, @eventid{i}, @timestamp{i}, @payload{i}::json)");
+
+            string query = "INSERT INTO timeeventsdata (studentid, eventid, timestamp, payload) VALUES " +
+                            string.Join(", ", @params);
+
+            var parameters = new DynamicParameters(new Dictionary<string, object?>());
+
+            for (int i = 0; i < teds.Count; i++)
+            {
+                parameters.Add($"@studentid{i}", teds[i].StudentId);
+                parameters.Add($"@eventid{i}", teds[i].EventId);
+                parameters.Add($"@timestamp{i}", teds[i].Timestamp);
+                parameters.Add($"@payload{i}", teds[i].Payload);
+            }
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            bool rollbackIsNeeded = true;
+
+            try
+            {
+                await _context.Connection.ExecuteAsync(query, parameters);
+
+                await transaction.CommitAsync();
+                rollbackIsNeeded = false;
+            }
+            finally
+            {
+                if (rollbackIsNeeded)
+                {
+                    await transaction.RollbackAsync();
+                }
+            }
+        }
+
+        public Task<List<TimeEventData>> GetTimeEventsDataAsync(int? offset = null, int? limit = null)
+        {
+            offset ??= 0;
+            limit ??= int.MaxValue;
+
+            return _context.TimeEventsData
+                .Take(offset.Value..limit.Value)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+    }
+}

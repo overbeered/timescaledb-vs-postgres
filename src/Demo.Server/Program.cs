@@ -1,3 +1,5 @@
+using Demo.Server.Extensions;
+
 namespace Demo.Server
 {
     public class Program
@@ -6,6 +8,8 @@ namespace Demo.Server
         {
             CreateHostBuilder(args)
                 .Build()
+                .MigrateTimescaleDatabase()
+                .MigratePostgresDatabase()
                 .Run();
         }
 

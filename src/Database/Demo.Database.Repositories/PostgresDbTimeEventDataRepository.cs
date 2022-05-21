@@ -152,21 +152,21 @@ namespace Demo.Database.Repositories
                 throw new TimeEventsStorageNotFoundException($"Time event data with [StudentId: {studentId} and Timestamp: {timestamp}] is not exist!");
             }
 
-            await TransactionalUpdateTimeEventDataInUncompressedChunkBySourceIdAsync(studentId, eventId, timestamp, payload);
+            await TransactionalUpdateTimeEventDataInUncompressedChunkByStudentIdAsync(studentId, eventId, timestamp, payload);
         }
 
-        private async Task UpdateTimeEventDataInUncompressedChunkBySourceIdAsync(Guid studentId,
+        private async Task UpdateTimeEventDataInUncompressedChunkByStudentIdAsync(Guid studentId,
             Guid eventId,
             DateTimeOffset timestamp,
             string payload)
         {
             string query = @"UPDATE timeeventsdata
                              SET eventid = @eventid, payload = @payload::json
-                             WHERE studentId = @studentId AND timestamp = @timestamp;";
+                             WHERE studentid = @studentid AND timestamp = @timestamp;";
 
             var parameters = new DynamicParameters(new Dictionary<string, object?>
             {
-                { "@sourceid",  studentId  },
+                { "@studentid",  studentId  },
                 { "@timestamp", timestamp },
                 { "@eventid",   eventId   },
                 { "@payload",  payload  }
@@ -175,7 +175,7 @@ namespace Demo.Database.Repositories
             await _context.Connection.ExecuteAsync(query, parameters);
         }
 
-        private async Task TransactionalUpdateTimeEventDataInUncompressedChunkBySourceIdAsync(Guid studentId,
+        private async Task TransactionalUpdateTimeEventDataInUncompressedChunkByStudentIdAsync(Guid studentId,
             Guid eventId,
             DateTimeOffset timestamp,
             string payload)
@@ -185,7 +185,7 @@ namespace Demo.Database.Repositories
 
             try
             {
-                await UpdateTimeEventDataInUncompressedChunkBySourceIdAsync(studentId, eventId, timestamp, payload);
+                await UpdateTimeEventDataInUncompressedChunkByStudentIdAsync(studentId, eventId, timestamp, payload);
 
                 await transaction.CommitAsync();
                 rollbackIsNeeded = false;
@@ -209,24 +209,24 @@ namespace Demo.Database.Repositories
                 throw new TimeEventsStorageNotFoundException($"Time event data with [StudentId: {studentId} and Timestamp: {timestamp}] is not exist!");
             }
 
-            await TransactionalRemoveTimeEventsDataFromUncompressedChunkBySourceIdAsync(studentId, timestamp);
+            await TransactionalRemoveTimeEventsDataFromUncompressedChunkByStudentIdAsync(studentId, timestamp);
         }
 
-        private async Task RemoveTimeEventsDataFromUncompressedChunkBySourceIdAsync(Guid studentId, DateTimeOffset timestamp)
+        private async Task RemoveTimeEventsDataFromUncompressedChunkByStudentIdAsync(Guid studentId, DateTimeOffset timestamp)
         {
             string query = @"DELETE FROM timeeventsdata
-                             WHERE studentId = @studentId AND timestamp = @timestamp;";
+                             WHERE studentid = @studentid AND timestamp = @timestamp;";
 
             var parameters = new DynamicParameters(new Dictionary<string, object?>
             {
-                { "@studentId",  studentId  },
+                { "@studentid",  studentId  },
                 { "@timestamp", timestamp }
             });
 
             await _context.Connection.QueryAsync<TimeEventData>(query, parameters);
         }
 
-        private async Task TransactionalRemoveTimeEventsDataFromUncompressedChunkBySourceIdAsync(Guid studentId,
+        private async Task TransactionalRemoveTimeEventsDataFromUncompressedChunkByStudentIdAsync(Guid studentId,
             DateTimeOffset timestamp)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
@@ -234,7 +234,7 @@ namespace Demo.Database.Repositories
 
             try
             {
-                await RemoveTimeEventsDataFromUncompressedChunkBySourceIdAsync(studentId, timestamp);
+                await RemoveTimeEventsDataFromUncompressedChunkByStudentIdAsync(studentId, timestamp);
 
                 await transaction.CommitAsync();
                 rollbackIsNeeded = false;

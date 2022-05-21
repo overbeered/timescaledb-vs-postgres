@@ -167,12 +167,12 @@ namespace Demo.Database.Repositories
 
                     try
                     {
-                        await TransactionalUpdateTimeEventDataInUncompressedChunkBySourceIdAsync(studentId, eventId, timestamp, payload);
+                        await TransactionalUpdateTimeEventDataInUncompressedChunkByStudentIdAsync(studentId, eventId, timestamp, payload);
                     }
                     catch (Exception ex)
                     when (ex.InnerException is not null && TimescaleExceptionsMessagesChecker.CheckModification(ex.InnerException.Message, out string chunkName))
                     {
-                        await TransactionalUpdateTimeEventDataInCompressedChunkBySourceIdAsync(chunkName, studentId, eventId, timestamp, payload);
+                        await TransactionalUpdateTimeEventDataInCompressedChunkByStudentIdAsync(chunkName, studentId, eventId, timestamp, payload);
                     }
                 }
                 finally
@@ -189,18 +189,18 @@ namespace Demo.Database.Repositories
             }
         }
 
-        private async Task UpdateTimeEventDataInUncompressedChunkBySourceIdAsync(Guid studentId,
+        private async Task UpdateTimeEventDataInUncompressedChunkByStudentIdAsync(Guid studentId,
             Guid eventId,
             DateTimeOffset timestamp,
             string payload)
         {
             string query = @"UPDATE timeeventsdata
                              SET eventid = @eventid, payload = @payload::json
-                             WHERE studentId = @studentId AND timestamp = @timestamp;";
+                             WHERE studentid = @studentid AND timestamp = @timestamp;";
 
             var parameters = new DynamicParameters(new Dictionary<string, object?>
             {
-                { "@sourceid",  studentId  },
+                { "@studentid",  studentId  },
                 { "@timestamp", timestamp },
                 { "@eventid",   eventId   },
                 { "@payload",  payload  }
@@ -209,7 +209,7 @@ namespace Demo.Database.Repositories
             await _context.Connection.ExecuteAsync(query, parameters);
         }
 
-        private async Task TransactionalUpdateTimeEventDataInUncompressedChunkBySourceIdAsync(Guid studentId,
+        private async Task TransactionalUpdateTimeEventDataInUncompressedChunkByStudentIdAsync(Guid studentId,
             Guid eventId,
             DateTimeOffset timestamp,
             string payload)
@@ -219,7 +219,7 @@ namespace Demo.Database.Repositories
 
             try
             {
-                await UpdateTimeEventDataInUncompressedChunkBySourceIdAsync(studentId, eventId, timestamp, payload);
+                await UpdateTimeEventDataInUncompressedChunkByStudentIdAsync(studentId, eventId, timestamp, payload);
 
                 await transaction.CommitAsync();
                 rollbackIsNeeded = false;
@@ -233,7 +233,7 @@ namespace Demo.Database.Repositories
             }
         }
 
-        private async Task TransactionalUpdateTimeEventDataInCompressedChunkBySourceIdAsync(string chunkName,
+        private async Task TransactionalUpdateTimeEventDataInCompressedChunkByStudentIdAsync(string chunkName,
             Guid studentId,
             Guid eventId,
             DateTimeOffset timestamp,
@@ -248,7 +248,7 @@ namespace Demo.Database.Repositories
 
                 await _context.DecompressChunkAsync(chunkName);
 
-                await UpdateTimeEventDataInUncompressedChunkBySourceIdAsync(studentId, eventId, timestamp, payload);
+                await UpdateTimeEventDataInUncompressedChunkByStudentIdAsync(studentId, eventId, timestamp, payload);
 
                 await _context.FindsAndScheduleCompressionPolicyJobAsync(_sharedResource.HypertableName);
 
@@ -284,12 +284,12 @@ namespace Demo.Database.Repositories
 
                     try
                     {
-                        await TransactionalRemoveTimeEventsDataFromUncompressedChunkBySourceIdAsync(studentId, timestamp);
+                        await TransactionalRemoveTimeEventsDataFromUncompressedChunkByStudentIdAsync(studentId, timestamp);
                     }
                     catch (Exception ex)
                     when (ex.InnerException is not null && TimescaleExceptionsMessagesChecker.CheckModification(ex.InnerException.Message, out string chunkName))
                     {
-                        await TransactionalRemoveTimeEventsDataFromCompressedChunkBySourceIdAsync(chunkName, studentId, timestamp);
+                        await TransactionalRemoveTimeEventsDataFromCompressedChunkByStudentIdAsync(chunkName, studentId, timestamp);
                     }
                 }
                 finally
@@ -306,21 +306,21 @@ namespace Demo.Database.Repositories
             }
         }
 
-        private async Task RemoveTimeEventsDataFromUncompressedChunkBySourceIdAsync(Guid studentId, DateTimeOffset timestamp)
+        private async Task RemoveTimeEventsDataFromUncompressedChunkByStudentIdAsync(Guid studentId, DateTimeOffset timestamp)
         {
             string query = @"DELETE FROM timeeventsdata
-                             WHERE studentId = @studentId AND timestamp = @timestamp;";
+                             WHERE studentid = @studentid AND timestamp = @timestamp;";
 
             var parameters = new DynamicParameters(new Dictionary<string, object?>
             {
-                { "@studentId",  studentId  },
+                { "@studentid",  studentId  },
                 { "@timestamp", timestamp }
             });
 
             await _context.Connection.QueryAsync<TimeEventData>(query, parameters);
         }
 
-        private async Task TransactionalRemoveTimeEventsDataFromUncompressedChunkBySourceIdAsync(Guid studentId,
+        private async Task TransactionalRemoveTimeEventsDataFromUncompressedChunkByStudentIdAsync(Guid studentId,
             DateTimeOffset timestamp)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
@@ -328,7 +328,7 @@ namespace Demo.Database.Repositories
 
             try
             {
-                await RemoveTimeEventsDataFromUncompressedChunkBySourceIdAsync(studentId, timestamp);
+                await RemoveTimeEventsDataFromUncompressedChunkByStudentIdAsync(studentId, timestamp);
 
                 await transaction.CommitAsync();
                 rollbackIsNeeded = false;
@@ -342,8 +342,8 @@ namespace Demo.Database.Repositories
             }
         }
 
-        private async Task TransactionalRemoveTimeEventsDataFromCompressedChunkBySourceIdAsync(string chunkName,
-            Guid sourceId,
+        private async Task TransactionalRemoveTimeEventsDataFromCompressedChunkByStudentIdAsync(string chunkName,
+            Guid studentId,
             DateTimeOffset timestamp)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead);
@@ -355,7 +355,7 @@ namespace Demo.Database.Repositories
 
                 await _context.DecompressChunkAsync(chunkName);
 
-                await RemoveTimeEventsDataFromUncompressedChunkBySourceIdAsync(sourceId, timestamp);
+                await RemoveTimeEventsDataFromUncompressedChunkByStudentIdAsync(studentId, timestamp);
 
                 await _context.FindsAndScheduleCompressionPolicyJobAsync(_sharedResource.HypertableName);
 

@@ -3,7 +3,6 @@ using Demo.Database.Contexts.TimescaleDB;
 using Demo.Database.Models;
 using Demo.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using System.Text.Json;
 
 namespace Demo.Playground
@@ -12,44 +11,63 @@ namespace Demo.Playground
     public class Program
     {
         private static TimeEventData _timeEventData;
-        private static List<TimeEventData> _listTimeEventData;
 
         private static TimescaleDbTimeEventDataRepository _timescaleDbRepository;
         private static PostgresDbTimeEventDataRepository _postgresDbRepository;
 
-        //public static void Main(string[] args)
-        //{
-
-        //}
-
         public static async Task Main(string[] args)
         {
-            // 65535
-            // 4
+            Init();
 
-            Init(16383);
-
-            int total = await TestPostgresDbAsync();
-            Console.WriteLine(total);
+            await WriteDataAsync();
         }
 
-        public static async Task<int> TestPostgresDbAsync()
+        public static async Task WriteDataAsync()
         {
-            var timer = new Stopwatch();
-            timer.Start();
+            var tasks = new List<Task>();
 
-            await _postgresDbRepository.AddTimeEventsDataAsync(_listTimeEventData);
+            int counter = 0;
+            int bound = 6666;
 
-            timer.Stop();
+            while (counter != bound)
+            {
+                var pgTask = TestPostgresDbAsync();
+                tasks.Add(pgTask);
 
-            TimeSpan timeTaken = timer.Elapsed;
+                var timescaleTask = TestTimescaleDbAsync();
+                tasks.Add(timescaleTask);
 
-            Console.WriteLine("Time taken: " + timeTaken.ToString(@"m\:ss\.fff"));
+                counter++;
+                Console.WriteLine($"[{bound}/{counter}] {counter * 15000}");
+            }
 
-            return timeTaken.Seconds;
+            await Task.WhenAll(tasks);
+
+            Console.WriteLine("Data is wrote...");
         }
 
-        public static void Init(int itemsToCreate)
+        public static async Task TestPostgresDbAsync()
+        {
+            var teds = new List<TimeEventData>();
+            for (int i = 0; i < 15000; i++)
+            {
+                teds.Add(_timeEventData);
+            }
+
+            await _postgresDbRepository.AddTimeEventsDataAsync(teds);
+        }
+        public static async Task TestTimescaleDbAsync()
+        {
+            var teds = new List<TimeEventData>();
+            for (int i = 0; i < 15000; i++)
+            {
+                teds.Add(_timeEventData);
+            }
+
+            await _timescaleDbRepository.AddTimeEventsDataAsync(teds);
+        }
+
+        public static void Init(/*int itemsToCreate*/)
         {
             var timescaleDbContext = new DbContextOptionsBuilder<TimescaleDbContext>()
                 .UseNpgsql("Host=localhost;Port=5002;Database=timescaledb-ted-database;Username=postgres;Password=postgres")
@@ -66,13 +84,6 @@ namespace Demo.Playground
             _postgresDbRepository = new PostgresDbTimeEventDataRepository(contextPostgres);
 
             _timeEventData = new TimeEventData(Guid.NewGuid(), Guid.NewGuid(), DateTimeOffset.UtcNow, JsonSerializer.Serialize(new { DataId = "AYE" }));
-
-            _listTimeEventData = new List<TimeEventData>();
-
-            for (int i = 0; i < itemsToCreate; i++)
-            {
-                _listTimeEventData.Add(_timeEventData);
-            }
         }
     }
 #nullable restore

@@ -2,6 +2,8 @@
 using Demo.Database.Contexts.TimescaleDB;
 using Demo.Database.Models;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using System.Data;
 
 namespace Demo.Database.Repositories
 {
@@ -34,12 +36,19 @@ namespace Demo.Database.Repositories
                 { "@payload",       payload     },
             });
 
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            await using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
+
+            if (connection.State == ConnectionState.Closed)
+            {
+                await connection.OpenAsync();
+            }
+
+            await using var transaction = await connection.BeginTransactionAsync();
             bool rollbackIsNeeded = true;
 
             try
             {
-                await _context.Connection.ExecuteAsync(query, parameters);
+                await connection.ExecuteAsync(query, parameters);
 
                 await transaction.CommitAsync();
                 rollbackIsNeeded = false;
@@ -50,6 +59,8 @@ namespace Demo.Database.Repositories
                 {
                     await transaction.RollbackAsync();
                 }
+
+                await connection.CloseAsync();
             }
         }
 
@@ -75,12 +86,19 @@ namespace Demo.Database.Repositories
                 parameters.Add($"@payload{i}", teds[i].Payload);
             }
 
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            await using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());
+
+            if (connection.State == ConnectionState.Closed)
+            {
+                await connection.OpenAsync();
+            }
+
+            await using var transaction = await connection.BeginTransactionAsync();
             bool rollbackIsNeeded = true;
 
             try
             {
-                await _context.Connection.ExecuteAsync(query, parameters);
+                await connection.ExecuteAsync(query, parameters);
 
                 await transaction.CommitAsync();
                 rollbackIsNeeded = false;
@@ -91,6 +109,8 @@ namespace Demo.Database.Repositories
                 {
                     await transaction.RollbackAsync();
                 }
+
+                await connection.CloseAsync();
             }
         }
 

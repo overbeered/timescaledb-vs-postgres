@@ -1,8 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Demo.Database.Contexts.Postgres;
-using Demo.Database.Contexts.Postgres.Extensions;
 using Demo.Database.Contexts.TimescaleDB;
-using Demo.Database.Contexts.TimescaleDB.Extensions;
 using Demo.Database.Models;
 using Demo.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +14,7 @@ namespace Demo.Benchmark
 
         private readonly TimescaleDbContext _contextTimescale;
         private readonly PostgresDbContext _contextPostgres;
+        private readonly TimeEventDataHypertableSharedResource _sharedResource;
 
         private readonly List<TimeEventData> _listTimeEventData1000;
         private readonly List<TimeEventData> _listTimeEventData5000;
@@ -37,6 +36,8 @@ namespace Demo.Benchmark
                 .Options;
 
             _contextPostgres = new PostgresDbContext(postgresDbContext);
+
+            _sharedResource = new TimeEventDataHypertableSharedResource();
 
             var timeEventData = new TimeEventData(Guid.NewGuid(), Guid.NewGuid(), DateTimeOffset.UtcNow, JsonSerializer.Serialize(new { DataId = "AYE" }));
 
@@ -70,7 +71,7 @@ namespace Demo.Benchmark
         {
             // await _contextTimescale.DropChunksNewerThanNegativeInfinityAsync(_tableName);
 
-            var repository = new TimescaleDbTimeEventDataRepository(_contextTimescale);
+            var repository = new TimescaleDbTimeEventDataRepository(_contextTimescale, _sharedResource);
 
             await repository.AddTimeEventsDataAsync(_listTimeEventData1000);
         }
@@ -90,7 +91,7 @@ namespace Demo.Benchmark
         {
             // await _contextTimescale.DropChunksNewerThanNegativeInfinityAsync(_tableName);
 
-            var repository = new TimescaleDbTimeEventDataRepository(_contextTimescale);
+            var repository = new TimescaleDbTimeEventDataRepository(_contextTimescale, _sharedResource);
 
             await repository.AddTimeEventsDataAsync(_listTimeEventData5000);
         }
@@ -110,7 +111,7 @@ namespace Demo.Benchmark
         {
             // await _contextTimescale.DropChunksNewerThanNegativeInfinityAsync(_tableName);
 
-            var repository = new TimescaleDbTimeEventDataRepository(_contextTimescale);
+            var repository = new TimescaleDbTimeEventDataRepository(_contextTimescale, _sharedResource);
 
             await repository.AddTimeEventsDataAsync(_listTimeEventData10000);
         }
@@ -130,7 +131,7 @@ namespace Demo.Benchmark
         {
             // await _contextTimescale.DropChunksNewerThanNegativeInfinityAsync(_tableName);
 
-            var repository = new TimescaleDbTimeEventDataRepository(_contextTimescale);
+            var repository = new TimescaleDbTimeEventDataRepository(_contextTimescale, _sharedResource);
 
             await repository.AddTimeEventsDataAsync(_listTimeEventData15000);
         }

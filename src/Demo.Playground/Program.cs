@@ -14,6 +14,7 @@ namespace Demo.Playground
 
         private static TimescaleDbTimeEventDataRepository _timescaleDbRepository;
         private static PostgresDbTimeEventDataRepository _postgresDbRepository;
+        private static TimeEventDataHypertableSharedResource _sharedResource;
 
         public static async Task Main(string[] args)
         {
@@ -74,7 +75,10 @@ namespace Demo.Playground
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .Options;
             var contextTimescale = new TimescaleDbContext(timescaleDbContext);
-            _timescaleDbRepository = new TimescaleDbTimeEventDataRepository(contextTimescale);
+
+            _sharedResource = new TimeEventDataHypertableSharedResource();
+
+            _timescaleDbRepository = new TimescaleDbTimeEventDataRepository(contextTimescale, _sharedResource);
 
             var postgresDbContext = new DbContextOptionsBuilder<PostgresDbContext>()
                 .UseNpgsql("Host=localhost;Port=5001;Database=postgres-ted-database;Username=postgres;Password=postgres")

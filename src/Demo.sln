@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo.Server", "Demo.Server\Demo.Server.csproj", "{7AEBBD2B-CFC0-4BA3-8872-EEF8E141A370}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{DED7F663-C63C-4492-A576-13DB4858FE17}"
-	ProjectSection(SolutionItems) = preProject
-		Benchmark\Demo.Benchmark\RepositoryBenchmark.cs = Benchmark\Demo.Benchmark\RepositoryBenchmark.cs
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo.Database.Models", "Database\Demo.Database.Models\Demo.Database.Models.csproj", "{07DF0085-98A4-4156-A17B-0E1A341AE67C}"
 EndProject

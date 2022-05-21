@@ -17,6 +17,8 @@ namespace Demo.Database.Contexts.TimescaleDB.Extensions
                 options.UseNpgsql(connectionString);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
+
+            services.AddSingleton<TimeEventDataHypertableSharedResource>();
         }
     }
 }

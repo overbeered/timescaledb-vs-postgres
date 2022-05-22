@@ -317,7 +317,7 @@ namespace Demo.Database.Repositories
                 { "@timestamp", timestamp }
             });
 
-            await _context.Connection.QueryAsync<TimeEventData>(query, parameters);
+            await _context.Connection.ExecuteAsync(query, parameters);
         }
 
         private async Task TransactionalRemoveTimeEventsDataFromUncompressedChunkByStudentIdAsync(Guid studentId,
